@@ -1,7 +1,7 @@
 <?php
-namespace HalimonAlexander\Router;
+namespace HalimonAlexander\RouterLite;
 
-class RouterLite
+class Router
 {
   private $allowedMethods = [
     'DELETE',

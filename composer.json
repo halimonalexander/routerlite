@@ -15,9 +15,6 @@
       "role": "lead"
     }
   ],
-  "support": {
-    "issues": "https://github.com/halimonalexander/routerlite/issues"
-  },
   "require": {
     "php": "^7.0"
   },
