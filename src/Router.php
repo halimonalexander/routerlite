@@ -126,7 +126,8 @@ class Router
     $uri = $this->getCurrentUri();
 
     foreach ($routes as $route) {
-      if (preg_match_all('#^' . $route['pattern'] . '$#', $uri, $matches, PREG_OFFSET_CAPTURE)) {
+      if (preg_match_all('#^\/' . $route['pattern'] . '$#', $uri, $matches, PREG_OFFSET_CAPTURE)) {
+
         $matches = array_slice($matches, 1);
 
         $params = array_map(function ($match, $index) use ($matches) {
@@ -140,7 +141,7 @@ class Router
         }, $matches, array_keys($matches));
 
         // Call the handling function with the URL parameters if the desired input is callable
-        $this->invoke($route['fn'], $params);
+        $this->invoke($route['callback'], $params);
         ++$numHandled;
 
         if ($quitAfterRun) {
@@ -163,15 +164,12 @@ class Router
     if (is_callable($fn)) {
       call_user_func_array($fn, $params);
     }
-    elseif (preg_match('/::/', $fn) !== false) {
-      list($controller, $method) = explode('::', $fn);
-
+    elseif (preg_match('/@/', $fn) !== false) {
+      list($controller, $method) = explode('@', $fn);
       if (class_exists($controller)) {
-
         // First check if is a static method, directly trying to invoke it.
         // If isn't a valid static method, we will try as a normal method invocation.
         if (call_user_func_array(array(new $controller(), $method), $params) === false) {
-
           // Try to call the method as an non-static method. (the if does nothing, only avoids the notice)
           if (forward_static_call_array(array($controller, $method), $params) === false) ;
         }
