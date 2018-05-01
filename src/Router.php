@@ -102,7 +102,7 @@ class Router
         $callback();
       }
     } else {
-      if ($this->errorsCallback['404']) {
+      if (isset($this->errorsCallback['404'])) {
         $this->invoke($this->errorsCallback['404']);
       } else {
         header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
