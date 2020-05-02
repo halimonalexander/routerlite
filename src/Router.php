@@ -17,6 +17,7 @@ class Router
   private $routes = [];
 
   private $errorsCallback = [];
+  
 
   /**
    * @var string The Request Method that needs to be handled
@@ -27,8 +28,18 @@ class Router
    * @var string The Server Base Path for Router Execution
    */
   private $serverBasePath;
-
-  private function validateMethods($methods)
+  
+  /**
+   * @var bool Allow or not to use relative routing in different subfolders
+   */
+  private $useRelativeRouting;
+  
+  public function __construct(bool $useRelativeRouting = false)
+  {
+      $this->useRelativeRouting = $useRelativeRouting;
+  }
+    
+    private function validateMethods($methods)
   {
     foreach ($methods as $key=>$method)
       if (!in_array($method, $this->allowedMethods))
@@ -184,8 +195,17 @@ class Router
    */
   protected function getCurrentUri()
   {
-    // Get the current Request URI and remove rewrite base path from it (= allows one to run the router in a sub folder)
-    $uri = substr($_SERVER['REQUEST_URI'], strlen($this->getBasePath()));
+      $uri = $_SERVER['REQUEST_URI'];
+    
+      if ($this->useRelativeRouting) {
+          $basePath = $this->getBasePath();
+          
+          // Get the current Request URI and remove rewrite base path from it (= allows one to run the router in a sub folder)
+          if (strstr($uri, $basePath) !== false) {
+              $uri = substr($uri, strlen($basePath));
+          }
+      }
+
     // Don't take query params into account on the URL
     if (strstr($uri, '?')) {
       $uri = substr($uri, 0, strpos($uri, '?'));
